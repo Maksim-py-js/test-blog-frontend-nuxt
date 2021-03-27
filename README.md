@@ -1,4 +1,4 @@
-# test-ptoject
+# test-blog-frontend-nuxt
 
 ## Build Setup
 
