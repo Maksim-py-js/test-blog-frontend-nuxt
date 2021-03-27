@@ -13,7 +13,7 @@
               img-top
               tag="article"
               class="mb-2 w-100"
-              v-for="article in articles" :key="article.article.id"
+              v-for="article in currentPageItems" :key="article.article.id"
             >
               <nuxt-link :to="{name: 'articles-id', params: {id: article.article.id}}" class="text-secondary text-decoration-none"><h3>{{ article.article.name }}</h3></nuxt-link>
               <b-card-text>
@@ -51,7 +51,7 @@
             </b-card>
             <b-pagination
               v-model="currentPage"
-              :total-rows="rows"
+              :total-rows="totalRows"
               :per-page="perPage"
               first-text="В начало"
               last-text="В конец"
@@ -70,8 +70,12 @@ export default {
   },
   data() {
     return {
-      perPage: 5,
       currentPage: 1,
+      perPage: 5,
+      totalRows: 0,
+      paginated_items: {},
+      currentPageIndex:0,
+      nbPages:0,
       tags: [],
       articles: []
     }
@@ -80,14 +84,33 @@ export default {
     this.loadTags();
     this.loadArticles();
   },
+  computed: {
+    pageCount() {
+      let l = this.totalRows,
+        s = this.perPage;
+      return Math.floor(l / s);
+    },
+    currentPageItems() {
+      let lengthAll =this.articles.length;
+      this.nbPages = 0;
+      for (let i = 0; i < lengthAll; i = i + this.perPage) {
+          this.paginated_items[this.nbPages] = this.articles.slice(i, i + this.perPage);
+          this.nbPages++;
+      }
+      return this.paginated_items[this.currentPage-1];
+    }
+  },
   methods: {
     async loadTags() {
       const data = await this.$axios.$get('/tags');
       this.tags = data;
     },
     async loadArticles() {
-      const data = await this.$axios.$get('/articles');
-      this.articles = data;
+      const data = await this.$axios.$get('/articles').then(response => {
+        this.articles = response;
+        this.totalRows = response.length;
+        console.log(this.totalRows)
+      })
 
       var cutArticles = this.articles.slice(-10);
       this.articles = cutArticles;
@@ -110,11 +133,6 @@ export default {
           this.loadArticles();
         }
       })
-    }
-  },
-  computed: {
-    rows() {
-      return this.articles.length
     }
   }
 }
