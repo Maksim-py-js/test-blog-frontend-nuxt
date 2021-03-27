@@ -11,7 +11,7 @@
             img-top
             tag="article"
           >
-            <nuxt-link to="articles/1" class="text-secondary text-decoration-none"><h3>{{ article.article.name }}</h3></nuxt-link>
+            <nuxt-link :to="{name: 'articles-id', params: {id: article.article.id}}" class="text-secondary text-decoration-none"><h3>{{ article.article.name }}</h3></nuxt-link>
             <b-card-text class="card-text">
               {{ article.article.text }}
             </b-card-text>
